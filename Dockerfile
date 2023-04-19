@@ -1,11 +1,17 @@
-FROM golang:1.17.0-alpine3.14 as builder
+FROM golang:1.20-alpine as builder
 
-ENV GOOS=linux
-ENV GOARCH=amd64
-RUN apk add --no-cache git && \
-    go install github.com/cespare/reflex@v0.3.1
+ENV GOBINARIES /go/bin
+ENV PATH="/usr/local/go/bin:${PATH}"
 
-FROM alpine:3.14
+RUN apk add --no-cache git
+RUN go install github.com/cespare/reflex@latest
+
+
+
+FROM alpine
+
+RUN apk add --update --no-cache go vim git make musl-dev curl
 
 COPY --from=builder /go/bin/reflex /usr/bin/reflex
+
 RUN apk add --no-cache ca-certificates
